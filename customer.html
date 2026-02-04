@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Allergen Information</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">ℹ️</div>
+      <div>
+        <div class="title">Allergen Information</div>
+        <div class="subtitle" id="subLine">Please confirm with staff if you have allergies</div>
+      </div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="index.html">Owner App</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="card-head">
+        <h2>Menu Items</h2>
+        <div class="small">Allergens per item</div>
+      </div>
+
+      <div id="simpleWrap"></div>
+
+      <p class="hint" style="margin-top:14px;">
+        Ingredients may change. Always inform staff about allergies and ask for the latest allergen information.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const LS_KEY = "ab_items_v1";
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function urlSafeBase64ToJson(b64url){
+      let b64 = (b64url || "").replaceAll("-","+").replaceAll("_","/");
+      const pad = b64.length % 4;
+      if (pad) b64 += "=".repeat(4 - pad);
+
+      const json = decodeURIComponent(escape(atob(b64)));
+      return JSON.parse(json);
+    }
+
+    function loadFromUrlOrLocal(){
+      const params = new URLSearchParams(window.location.search);
+      const d = params.get("d");
+
+      if (d) {
+        try { return urlSafeBase64ToJson(d); }
+        catch (e) { /* fall back */ }
+      }
+
+      // fallback for owner testing
+      try {
+        return { v:1, biz:"", items: JSON.parse(localStorage.getItem(LS_KEY) || "[]") };
+      } catch {
+        return { v:1, biz:"", items: [] };
+      }
+    }
+
+    function renderSimple(items){
+      const wrap = document.getElementById("simpleWrap");
+      if (!items.length) {
+        wrap.innerHTML = `<div class="small">No allergen info has been added yet.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="simple-cards">
+          ${items.map(it => {
+            const alls = (it.allergens || []);
+            return `
+              <div class="simple-card">
+                <div><b>${escapeHtml(it.name)}</b> ${it.cat ? `<span class="badge">${escapeHtml(it.cat)}</span>` : ""}</div>
+                ${it.ingredients ? `<div class="small" style="margin-top:6px;">Ingredients: ${escapeHtml(it.ingredients)}</div>` : ""}
+                <div class="small" style="margin-top:8px;">Allergens:</div>
+                <div class="pills">
+                  ${
+                    alls.length
+                      ? alls.map(a => `<span class="pill on">${escapeHtml(a)}</span>`).join("")
+                      : `<span class="pill">No allergens selected</span>`
+                  }
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    const payload = loadFromUrlOrLocal();
+    if (payload.biz) {
+      document.getElementById("subLine").textContent =
+        payload.biz + " • Please confirm with staff if you have allergies";
+    }
+    renderSimple(payload.items || []);
+  </script>
+</body>
+</html>

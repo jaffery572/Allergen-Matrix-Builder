@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Allergen Matrix Builder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">🍽️</div>
+      <div>
+        <div class="title">Allergen Matrix Builder</div>
+        <div class="subtitle">Items • 14 Allergens • Export PDF</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="tabItems" class="btn primary">Items</button>
+      <button id="tabExport" class="btn">Export</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ITEMS VIEW -->
+    <section id="viewItems" class="card">
+      <div class="card-head">
+        <h2>Menu Items</h2>
+        <button id="btnNew" class="btn">+ New Item</button>
+      </div>
+
+      <div id="itemsList" class="list"></div>
+
+      <div id="empty" class="empty hidden">
+        <div class="empty-big">No items yet</div>
+        <div class="empty-small">Click “New Item” to add your first menu item.</div>
+      </div>
+    </section>
+
+    <!-- EDIT VIEW -->
+    <section id="viewEditor" class="card hidden">
+      <div class="card-head">
+        <h2 id="editorTitle">New Item</h2>
+        <button id="btnBack" class="btn">Back</button>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label>Item name</label>
+          <input id="itemName" placeholder="e.g. Chicken Burger" />
+        </div>
+        <div class="field">
+          <label>Category (optional)</label>
+          <input id="itemCat" placeholder="e.g. Burgers" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Ingredients text (optional)</label>
+        <textarea id="itemIng" rows="3" placeholder="e.g. Chicken, bun, mayo, lettuce..."></textarea>
+      </div>
+
+      <h3>Allergens (tick what applies)</h3>
+      <div id="allergenGrid" class="allergen-grid"></div>
+
+      <div class="row">
+        <button id="btnSave" class="btn primary">Save</button>
+        <button id="btnDelete" class="btn danger hidden">Delete</button>
+      </div>
+
+      <p class="hint">Tip: This tool helps generate written allergen info. Always verify with your actual ingredients & suppliers.</p>
+    </section>
+
+    <!-- EXPORT VIEW -->
+    <section id="viewExport" class="card hidden">
+      <div class="card-head">
+        <h2>Export</h2>
+        <button id="btnBack2" class="btn">Back</button>
+      </div>
+
+      <!-- Business name for customer link -->
+      <div class="field" style="margin-top:6px;">
+        <label>Business name (shown on customer page)</label>
+        <input id="bizName" placeholder="e.g. Khan Takeaway" />
+      </div>
+
+      <div class="row">
+        <button id="btnPrint" class="btn primary">Print / Save PDF (Matrix)</button>
+        <button id="btnSimple" class="btn">Customer View (Simple)</button>
+        <button id="btnQR" class="btn">Generate Share Link (QR)</button>
+        <button id="btnReset" class="btn danger">Reset All Data</button>
+      </div>
+
+      <div id="printArea" class="print-area">
+        <h2 class="print-title">Allergen Information</h2>
+        <div class="print-sub" id="printSub">Generated from your saved items</div>
+
+        <!-- Matrix table -->
+        <div id="matrixTableWrap"></div>
+
+        <!-- Simple cards -->
+        <div id="simpleWrap" class="hidden"></div>
+
+        <!-- Share link box -->
+        <div id="qrWrap" class="hidden" style="margin-top:12px;"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
