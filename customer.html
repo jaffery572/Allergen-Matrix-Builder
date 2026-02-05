@@ -1,102 +1,148 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Allergen Information</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="logo">ℹ️</div>
+      <div class="logo">🍽️</div>
       <div>
-        <div class="title">Allergen Information</div>
-        <div class="subtitle" id="subLine">Please confirm with staff if you have allergies</div>
+        <div class="title" id="biz">Allergen Information</div>
+        <div class="subtitle">Customer view (simple)</div>
       </div>
     </div>
-    <div class="actions">
-      <button class="btn" onclick="window.print()">Print</button>
+    <div class="top-actions">
+      <a class="btn" id="backHome" href="./">Home</a>
     </div>
   </header>
 
   <main class="container">
-    <section class="card">
-      <div class="card-head">
-        <h2>Menu Items</h2>
-        <div class="small">Allergens per item</div>
-      </div>
+    <section class="card" id="content">
+      <p class="h2">Loading…</p>
+      <p class="p">Please wait.</p>
+    </section>
 
-      <div id="simpleWrap"></div>
-
-      <p class="hint" style="margin-top:14px;">
-        Ingredients may change. Always inform staff about allergies and ask for the latest allergen information.
+    <section class="card" style="margin-top:14px">
+      <p class="h2">Important</p>
+      <p class="p">
+        This information is provided by the business. If you have severe allergies, always contact the takeaway directly.
       </p>
     </section>
   </main>
 
   <script>
-    function escapeHtml(s) {
-      return String(s || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+    const ALLERGENS = [
+      { key: "celery", label: "Celery" },
+      { key: "gluten", label: "Cereals containing gluten" },
+      { key: "crustaceans", label: "Crustaceans" },
+      { key: "eggs", label: "Eggs" },
+      { key: "fish", label: "Fish" },
+      { key: "lupin", label: "Lupin" },
+      { key: "milk", label: "Milk" },
+      { key: "molluscs", label: "Molluscs" },
+      { key: "mustard", label: "Mustard" },
+      { key: "nuts", label: "Nuts" },
+      { key: "peanuts", label: "Peanuts" },
+      { key: "sesame", label: "Sesame" },
+      { key: "soya", label: "Soya" },
+      { key: "sulphites", label: "Sulphur dioxide / sulphites" },
+    ];
+
+    const $ = (s)=>document.querySelector(s);
+
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
     }
 
-    function urlSafeBase64ToJson(b64url){
-      let b64 = (b64url || "").replaceAll("-","+").replaceAll("_","/");
-      const pad = b64.length % 4;
-      if (pad) b64 += "=".repeat(4 - pad);
-      const json = decodeURIComponent(escape(atob(b64)));
-      return JSON.parse(json);
+    async function loadPublicData() {
+      // If owner uploaded public-data.json to GitHub repo root,
+      // we can read it and show by slug.
+      const res = await fetch("./public-data.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("no public-data");
+      return await res.json();
     }
 
-    function loadFromUrl(){
-      const params = new URLSearchParams(window.location.search);
-      const d = params.get("d");
-      if (!d) return { v:1, biz:"", items: [] };
-      try { return urlSafeBase64ToJson(d); }
-      catch { return { v:1, biz:"", items: [] }; }
-    }
+    function renderTakeaway(tw){
+      $("#biz").textContent = tw.name || "Allergen Information";
+      const rows = (tw.items || []).map(it=>{
+        const activeKeys = it.allergens || [];
+        const chips = activeKeys.length
+          ? activeKeys.map(k=>{
+              const label = (ALLERGENS.find(a=>a.key===k)?.label) || k;
+              return `<span class="chip red">${escapeHtml(label)}</span>`;
+            }).join("")
+          : `<span class="chip green">No declared allergens</span>`;
 
-    function renderSimple(items){
-      const wrap = document.getElementById("simpleWrap");
-      if (!items.length) {
-        wrap.innerHTML = `<div class="small">No allergen info found in this link.</div>`;
-        return;
-      }
+        return `
+          <tr>
+            <td>
+              <div style="font-weight:900">${escapeHtml(it.name || "")}</div>
+              <div class="muted">${escapeHtml(it.category || "")}</div>
+            </td>
+            <td class="muted">${escapeHtml(it.ingredients || "")}</td>
+            <td><div class="chips">${chips}</div></td>
+          </tr>
+        `;
+      }).join("");
 
-      wrap.innerHTML = `
-        <div class="simple-cards">
-          ${items.map(it => {
-            const alls = (it.allergens || []);
-            return `
-              <div class="simple-card">
-                <div><b>${escapeHtml(it.name)}</b> ${it.cat ? `<span class="badge">${escapeHtml(it.cat)}</span>` : ""}</div>
-                ${it.ingredients ? `<div class="small" style="margin-top:6px;">Ingredients: ${escapeHtml(it.ingredients)}</div>` : ""}
-                <div class="small" style="margin-top:8px;">Allergens:</div>
-                <div class="pills">
-                  ${
-                    alls.length
-                      ? alls.map(a => `<span class="pill on">${escapeHtml(a)}</span>`).join("")
-                      : `<span class="pill">No allergens selected</span>`
-                  }
-                </div>
-              </div>
-            `;
-          }).join("")}
-        </div>
+      $("#content").innerHTML = `
+        <p class="h2">Allergen Information</p>
+        <p class="p">Updated: ${escapeHtml(tw.updatedAt || "")}</p>
+        <hr class="sep"/>
+        ${(tw.items && tw.items.length) ? `
+          <table class="table">
+            <tr>
+              <th style="width:26%">Item</th>
+              <th>Ingredients</th>
+              <th style="width:30%">Allergens</th>
+            </tr>
+            ${rows}
+          </table>
+        ` : `
+          <div class="notice">
+            No items published yet. Please check again later.
+          </div>
+        `}
       `;
     }
 
-    const payload = loadFromUrl();
-    if (payload.biz) {
-      document.getElementById("subLine").textContent =
-        payload.biz + " • Please confirm with staff if you have allergies";
+    async function main(){
+      const u = new URL(location.href);
+      const slug = u.searchParams.get("t");
+
+      if (!slug) {
+        $("#content").innerHTML = `
+          <p class="h2">Invalid link</p>
+          <p class="p">Missing takeaway id (t).</p>
+        `;
+        return;
+      }
+
+      try{
+        const data = await loadPublicData();
+        const tw = (data.takeaways || []).find(x => x.slug === slug);
+        if (!tw) throw new Error("not found");
+        renderTakeaway(tw);
+      }catch(err){
+        $("#content").innerHTML = `
+          <p class="h2">Not published yet</p>
+          <p class="p">
+            This takeaway has not been published. The business owner must upload <span class="kbd">public-data.json</span> to the website.
+          </p>
+          <div class="notice" style="margin-top:10px">
+            If you are the owner: Open the Builder → Export → “Download public-data.json” → upload it to GitHub repo root.
+          </div>
+        `;
+      }
     }
-    renderSimple(payload.items || []);
+
+    main();
   </script>
 </body>
 </html>
