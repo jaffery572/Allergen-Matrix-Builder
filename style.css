@@ -7,7 +7,6 @@
   --primary:#22c55e;
   --danger:#ef4444;
 }
-
 *{box-sizing:border-box}
 body{
   margin:0;
@@ -16,7 +15,6 @@ body{
   color:var(--text);
 }
 .hidden{display:none !important}
-
 .topbar{
   position:sticky; top:0;
   z-index:10;
@@ -37,23 +35,20 @@ body{
 .title{font-weight:800}
 .subtitle{color:var(--muted); font-size:12px}
 .actions{display:flex; gap:10px; flex-wrap:wrap}
-
 .container{max-width:1100px; margin:18px auto; padding:0 14px}
 .card{
   background: rgba(17,26,46,.8);
   border:1px solid var(--line);
-  border-radius:16px;
+  border-radius:16px; /* FIXED */
   padding:14px;
   box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 .card-head{
   display:flex; justify-content:space-between; align-items:center;
-  gap:12px;
-  margin-bottom:12px;
+  gap:12px; margin-bottom:12px;
 }
 h2{margin:0; font-size:18px}
 h3{margin:14px 0 10px 0; font-size:15px; color:#cbd5e1}
-
 .btn{
   border:1px solid var(--line);
   background: rgba(255,255,255,.06);
@@ -65,20 +60,19 @@ h3{margin:14px 0 10px 0; font-size:15px; color:#cbd5e1}
   display:inline-flex;
   align-items:center;
   justify-content:center;
+  gap:8px;
 }
 .btn:hover{background: rgba(255,255,255,.10)}
 .btn.primary{background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.45)}
 .btn.danger{background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.4)}
-
+.file-btn{position:relative; overflow:hidden}
 .list{display:flex; flex-direction:column; gap:10px}
 .item-card{
   border:1px solid var(--line);
   border-radius:14px;
   padding:12px;
   background: rgba(255,255,255,.04);
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
+  display:flex; justify-content:space-between; gap:10px;
 }
 .small{color:var(--muted); font-size:12px}
 .badge{
@@ -90,10 +84,9 @@ h3{margin:14px 0 10px 0; font-size:15px; color:#cbd5e1}
   color:var(--muted);
   width:max-content;
 }
-
 .field{display:flex; flex-direction:column; gap:6px; margin-bottom:10px}
 label{font-size:12px; color:var(--muted)}
-input, textarea{
+input, textarea, select{
   background: rgba(255,255,255,.06);
   border:1px solid var(--line);
   color:var(--text);
@@ -105,7 +98,8 @@ textarea{resize:vertical}
 .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
 @media (max-width:900px){ .grid2{grid-template-columns:1fr} }
 .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-
+.toolbar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+.input{min-width:220px}
 .allergen-grid{
   display:grid;
   grid-template-columns: repeat(2, minmax(0,1fr));
@@ -117,17 +111,14 @@ textarea{resize:vertical}
   border-radius:12px;
   padding:10px;
   background: rgba(255,255,255,.04);
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
+  display:flex; gap:10px; align-items:flex-start;
 }
 .chk input{margin-top:3px}
 .hint{color:var(--muted); font-size:12px; margin-top:10px}
-
 .empty{padding:30px 12px; text-align:center}
 .empty-big{font-size:18px; font-weight:800}
 .empty-small{color:var(--muted); margin-top:6px}
-
+.divider{height:1px; background: rgba(31,42,68,.85); margin:14px 0}
 .print-area{
   margin-top:12px;
   background:#0b1220;
@@ -137,16 +128,27 @@ textarea{resize:vertical}
 }
 .print-title{margin:0 0 6px 0}
 .print-sub{color:var(--muted); font-size:12px; margin-bottom:10px}
-
 table{width:100%; border-collapse:collapse}
 th, td{border-bottom:1px solid rgba(31,42,68,.8); padding:8px; font-size:12px}
 th{color:var(--muted); text-align:left}
 .right{text-align:right}
-
+.qr-img{
+  margin-top:10px;
+  width:320px;
+  max-width:100%;
+  border-radius:12px;
+  border:1px solid rgba(31,42,68,.8);
+  background: rgba(255,255,255,.04);
+}
 @media print{
   body{background:white}
   header, .actions, #tabItems, #tabExport,
-  #btnPrint, #btnSimple, #btnQR, #btnReset, #btnBack2{
+  #btnPrint, #btnSimple, #btnQR, #btnResetTakeaway, #btnBack2,
+  #btnDownloadBackup, #btnPinToggle, #btnPinSet, #importFile,
+  #btnDownloadCsvTemplate, #btnExportCsv, #importCsvFile,
+  #btnBulkTemplate, #btnBulkExport, #importBulkCsvFile,
+  #btnQrSheet,
+  #btnNewTakeaway, #btnRenameTakeaway, #btnDeleteTakeaway, #takeawaySelect{
     display:none !important
   }
   .card{border:none; box-shadow:none; background:white}
@@ -154,8 +156,6 @@ th{color:var(--muted); text-align:left}
   #simpleWrap{display:none !important}
   #qrWrap{display:none !important}
 }
-
-/* ---- Simple Customer View ---- */
 .simple-cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
 @media (max-width:900px){ .simple-cards{grid-template-columns:1fr} }
 .simple-card{
