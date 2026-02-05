@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Allergen Matrix Builder</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <header class="topbar">
@@ -15,172 +15,29 @@
         <div class="subtitle">Multi-Takeaway • PDF • QR • CSV • Bulk CSV • QR Sheet</div>
       </div>
     </div>
-
-    <div class="actions">
-      <button id="tabItems" class="btn primary">Items</button>
-      <button id="tabExport" class="btn">Export</button>
+    <div class="top-actions">
+      <button id="navItems" class="btn primary">Items</button>
+      <button id="navExport" class="btn">Export</button>
     </div>
   </header>
 
-  <main class="container">
-    <!-- TAKEAWAY BAR -->
-    <section class="card" style="margin-bottom:14px;">
-      <div class="card-head">
-        <div>
-          <h2>Takeaway Profile</h2>
-          <div class="small">Each takeaway has separate data (items, export, QR, CSV).</div>
-        </div>
-        <div class="row">
-          <select id="takeawaySelect" class="input"></select>
-          <button id="btnNewTakeaway" class="btn">+ New</button>
-          <button id="btnRenameTakeaway" class="btn">Rename</button>
-          <button id="btnDeleteTakeaway" class="btn danger">Delete</button>
-        </div>
-      </div>
-      <div class="small" id="takeawayMeta"></div>
-    </section>
+  <main class="container" id="app"></main>
 
-    <!-- ITEMS VIEW -->
-    <section id="viewItems" class="card">
-      <div class="card-head">
-        <div>
-          <h2>Menu Items</h2>
-          <div class="small">Search, sort, manage items for selected takeaway.</div>
-        </div>
-        <button id="btnNew" class="btn">+ New Item</button>
-      </div>
-
-      <div class="toolbar">
-        <input id="searchBox" class="input" placeholder="Search item name / category..." />
-        <select id="sortBy" class="input">
-          <option value="newest">Sort: Newest</option>
-          <option value="az">Sort: A → Z</option>
-          <option value="za">Sort: Z → A</option>
-        </select>
-        <button id="btnClearSearch" class="btn">Clear</button>
-      </div>
-
-      <div id="itemsList" class="list"></div>
-
-      <div id="empty" class="empty hidden">
-        <div class="empty-big">No items yet</div>
-        <div class="empty-small">Click “New Item” to add your first menu item.</div>
-      </div>
-    </section>
-
-    <!-- EDIT VIEW -->
-    <section id="viewEditor" class="card hidden">
-      <div class="card-head">
-        <h2 id="editorTitle">New Item</h2>
-        <button id="btnBack" class="btn">Back</button>
-      </div>
-
-      <div class="grid2">
-        <div class="field">
-          <label>Item name</label>
-          <input id="itemName" placeholder="e.g. Chicken Burger" />
-        </div>
-        <div class="field">
-          <label>Category (optional)</label>
-          <input id="itemCat" placeholder="e.g. Burgers" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Ingredients text (optional)</label>
-        <textarea id="itemIng" rows="3" placeholder="e.g. Chicken, bun, mayo, lettuce..."></textarea>
-      </div>
-
-      <h3>Allergens (tick what applies)</h3>
-      <div id="allergenGrid" class="allergen-grid"></div>
-
-      <div class="row">
-        <button id="btnSave" class="btn primary">Save</button>
-        <button id="btnDelete" class="btn danger hidden">Delete</button>
-      </div>
-
-      <p class="hint">Tip: Always verify with suppliers. This tool is for quick written information only.</p>
-    </section>
-
-    <!-- EXPORT VIEW -->
-    <section id="viewExport" class="card hidden">
-      <div class="card-head">
-        <h2>Export</h2>
-        <button id="btnBack2" class="btn">Back</button>
-      </div>
-
-      <div class="field" style="margin-top:6px;">
-        <label>Business name (shown on customer page) — per takeaway</label>
-        <input id="bizName" placeholder="e.g. Khan Takeaway" />
-      </div>
-
-      <div class="row">
-        <button id="btnPrint" class="btn primary">Print / Save PDF (Matrix)</button>
-        <button id="btnSimple" class="btn">Customer View (Simple)</button>
-        <button id="btnQR" class="btn">Generate Share Link + QR</button>
-        <button id="btnResetTakeaway" class="btn danger">Reset This Takeaway</button>
-      </div>
-
-      <div class="divider"></div>
-
-      <h3>CSV Import / Export (selected takeaway)</h3>
-      <div class="row">
-        <button id="btnDownloadCsvTemplate" class="btn">Download CSV Template</button>
-        <button id="btnExportCsv" class="btn">Export Items as CSV</button>
-
-        <label class="btn file-btn">
-          Import CSV
-          <input id="importCsvFile" type="file" accept=".csv,text/csv" hidden />
-        </label>
-      </div>
-
-      <div class="divider"></div>
-
-      <h3>Bulk CSV (100 takeaways in ONE file)</h3>
-      <div class="row">
-        <button id="btnBulkTemplate" class="btn">Download Bulk Template</button>
-        <button id="btnBulkExport" class="btn">Export ALL as Bulk CSV</button>
-
-        <label class="btn file-btn">
-          Import BULK CSV (auto creates takeaways)
-          <input id="importBulkCsvFile" type="file" accept=".csv,text/csv" hidden />
-        </label>
-      </div>
-
-      <div class="divider"></div>
-
-      <h3>QR Sheet (ALL takeaways)</h3>
-      <div class="row">
-        <button id="btnQrSheet" class="btn primary">Open QR Sheet (Print / Save PDF)</button>
-        <div class="small" style="align-self:center;">One page with every takeaway link + QR.</div>
-      </div>
-
-      <div class="divider"></div>
-
-      <h3>Backup & Security (Owner)</h3>
-      <div class="row">
-        <button id="btnDownloadBackup" class="btn">Download Backup (ALL Takeaways JSON)</button>
-
-        <label class="btn file-btn">
-          Import Backup (JSON)
-          <input id="importFile" type="file" accept="application/json" hidden />
-        </label>
-
-        <button id="btnPinToggle" class="btn">Enable PIN Lock</button>
-        <button id="btnPinSet" class="btn">Set / Change PIN</button>
-      </div>
-      <div class="small" id="pinStatus" style="margin-top:6px;"></div>
-
-      <div id="printArea" class="print-area">
-        <h2 class="print-title">Allergen Information</h2>
-        <div class="print-sub" id="printSub">Generated from selected takeaway</div>
-
-        <div id="matrixTableWrap"></div>
-        <div id="simpleWrap" class="hidden"></div>
-        <div id="qrWrap" class="hidden" style="margin-top:12px;"></div>
-      </div>
-    </section>
-  </main>
+  <script>
+    // ✅ Short link entry point:
+    // If someone opens: /?t=crust-blackburn
+    // redirect to customer page:
+    // /customer.html?t=crust-blackburn
+    (function(){
+      const u = new URL(location.href);
+      const t = u.searchParams.get("t");
+      if (t) {
+        const dest = new URL("customer.html", location.href);
+        dest.searchParams.set("t", t);
+        location.replace(dest.toString());
+      }
+    })();
+  </script>
 
   <script src="app.js"></script>
 </body>
