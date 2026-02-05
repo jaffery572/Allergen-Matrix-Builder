@@ -16,7 +16,7 @@
       </div>
     </div>
     <div class="actions">
-      <a class="btn" href="index.html">Owner App</a>
+      <button class="btn" onclick="window.print()">Print</button>
     </div>
   </header>
 
@@ -36,8 +36,6 @@
   </main>
 
   <script>
-    const LS_KEY = "ab_items_v1";
-
     function escapeHtml(s) {
       return String(s || "")
         .replaceAll("&","&amp;")
@@ -51,32 +49,22 @@
       let b64 = (b64url || "").replaceAll("-","+").replaceAll("_","/");
       const pad = b64.length % 4;
       if (pad) b64 += "=".repeat(4 - pad);
-
       const json = decodeURIComponent(escape(atob(b64)));
       return JSON.parse(json);
     }
 
-    function loadFromUrlOrLocal(){
+    function loadFromUrl(){
       const params = new URLSearchParams(window.location.search);
       const d = params.get("d");
-
-      if (d) {
-        try { return urlSafeBase64ToJson(d); }
-        catch (e) { /* fall back */ }
-      }
-
-      // fallback for owner testing
-      try {
-        return { v:1, biz:"", items: JSON.parse(localStorage.getItem(LS_KEY) || "[]") };
-      } catch {
-        return { v:1, biz:"", items: [] };
-      }
+      if (!d) return { v:1, biz:"", items: [] };
+      try { return urlSafeBase64ToJson(d); }
+      catch { return { v:1, biz:"", items: [] }; }
     }
 
     function renderSimple(items){
       const wrap = document.getElementById("simpleWrap");
       if (!items.length) {
-        wrap.innerHTML = `<div class="small">No allergen info has been added yet.</div>`;
+        wrap.innerHTML = `<div class="small">No allergen info found in this link.</div>`;
         return;
       }
 
@@ -103,7 +91,7 @@
       `;
     }
 
-    const payload = loadFromUrlOrLocal();
+    const payload = loadFromUrl();
     if (payload.biz) {
       document.getElementById("subLine").textContent =
         payload.biz + " • Please confirm with staff if you have allergies";
