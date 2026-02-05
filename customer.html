@@ -1,148 +1,131 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Allergen Information</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">🍽️</div>
-      <div>
-        <div class="title" id="biz">Allergen Information</div>
-        <div class="subtitle">Customer view (simple)</div>
-      </div>
-    </div>
-    <div class="top-actions">
-      <a class="btn" id="backHome" href="./">Home</a>
-    </div>
-  </header>
-
+<body class="customer-body">
   <main class="container">
-    <section class="card" id="content">
-      <p class="h2">Loading…</p>
-      <p class="p">Please wait.</p>
-    </section>
+    <section class="card">
+      <div class="row space wrap">
+        <div>
+          <div id="cxBiz" class="h2">Allergen Information</div>
+          <div id="cxSub" class="p muted">Menu items & allergens (customer view)</div>
+        </div>
+        <a class="btn" href="./index.html">Owner Panel</a>
+      </div>
 
-    <section class="card" style="margin-top:14px">
-      <p class="h2">Important</p>
-      <p class="p">
-        This information is provided by the business. If you have severe allergies, always contact the takeaway directly.
-      </p>
+      <div class="p small muted" id="cxMeta"></div>
+
+      <div class="row space wrap" style="margin-top:10px">
+        <input id="cxSearch" class="input" placeholder="Search item name / category..." />
+        <button id="cxPrint" class="btn">Print / Save PDF</button>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table class="grid" id="cxTable"></table>
+      </div>
     </section>
   </main>
 
   <script>
     const ALLERGENS = [
-      { key: "celery", label: "Celery" },
-      { key: "gluten", label: "Cereals containing gluten" },
-      { key: "crustaceans", label: "Crustaceans" },
-      { key: "eggs", label: "Eggs" },
-      { key: "fish", label: "Fish" },
-      { key: "lupin", label: "Lupin" },
-      { key: "milk", label: "Milk" },
-      { key: "molluscs", label: "Molluscs" },
-      { key: "mustard", label: "Mustard" },
-      { key: "nuts", label: "Nuts" },
-      { key: "peanuts", label: "Peanuts" },
-      { key: "sesame", label: "Sesame" },
-      { key: "soya", label: "Soya" },
-      { key: "sulphites", label: "Sulphur dioxide / sulphites" },
+      { key:"celery", label:"Celery" },
+      { key:"gluten", label:"Cereals containing gluten" },
+      { key:"crustaceans", label:"Crustaceans" },
+      { key:"eggs", label:"Eggs" },
+      { key:"fish", label:"Fish" },
+      { key:"lupin", label:"Lupin" },
+      { key:"milk", label:"Milk" },
+      { key:"molluscs", label:"Molluscs" },
+      { key:"mustard", label:"Mustard" },
+      { key:"nuts", label:"Nuts" },
+      { key:"peanuts", label:"Peanuts" },
+      { key:"sesame", label:"Sesame" },
+      { key:"soya", label:"Soya" },
+      { key:"sulphites", label:"Sulphur dioxide / sulphites" }
     ];
 
-    const $ = (s)=>document.querySelector(s);
-
-    function escapeHtml(s){
-      return String(s ?? "").replace(/[&<>"']/g, c => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[c]));
-    }
-
-    async function loadPublicData() {
-      // If owner uploaded public-data.json to GitHub repo root,
-      // we can read it and show by slug.
-      const res = await fetch("./public-data.json", { cache: "no-store" });
-      if (!res.ok) throw new Error("no public-data");
-      return await res.json();
-    }
-
-    function renderTakeaway(tw){
-      $("#biz").textContent = tw.name || "Allergen Information";
-      const rows = (tw.items || []).map(it=>{
-        const activeKeys = it.allergens || [];
-        const chips = activeKeys.length
-          ? activeKeys.map(k=>{
-              const label = (ALLERGENS.find(a=>a.key===k)?.label) || k;
-              return `<span class="chip red">${escapeHtml(label)}</span>`;
-            }).join("")
-          : `<span class="chip green">No declared allergens</span>`;
-
-        return `
-          <tr>
-            <td>
-              <div style="font-weight:900">${escapeHtml(it.name || "")}</div>
-              <div class="muted">${escapeHtml(it.category || "")}</div>
-            </td>
-            <td class="muted">${escapeHtml(it.ingredients || "")}</td>
-            <td><div class="chips">${chips}</div></td>
-          </tr>
-        `;
-      }).join("");
-
-      $("#content").innerHTML = `
-        <p class="h2">Allergen Information</p>
-        <p class="p">Updated: ${escapeHtml(tw.updatedAt || "")}</p>
-        <hr class="sep"/>
-        ${(tw.items && tw.items.length) ? `
-          <table class="table">
-            <tr>
-              <th style="width:26%">Item</th>
-              <th>Ingredients</th>
-              <th style="width:30%">Allergens</th>
-            </tr>
-            ${rows}
-          </table>
-        ` : `
-          <div class="notice">
-            No items published yet. Please check again later.
-          </div>
-        `}
-      `;
-    }
-
-    async function main(){
+    function getParam(name){
       const u = new URL(location.href);
-      const slug = u.searchParams.get("t");
+      return u.searchParams.get(name) || "";
+    }
 
-      if (!slug) {
-        $("#content").innerHTML = `
-          <p class="h2">Invalid link</p>
-          <p class="p">Missing takeaway id (t).</p>
-        `;
+    function loadState(){
+      try { return JSON.parse(localStorage.getItem("amb_state_v3") || "null"); }
+      catch { return null; }
+    }
+
+    function safe(x){ return (x ?? "").toString(); }
+
+    function buildTable(bizName, items){
+      document.getElementById("cxBiz").textContent = bizName || "Allergen Information";
+      document.getElementById("cxMeta").textContent =
+        `Updated: ${new Date().toLocaleString()} • Items: ${items.length}`;
+
+      const t = document.getElementById("cxTable");
+      const thead = `
+        <thead>
+          <tr>
+            <th class="sticky">Item</th>
+            <th>Category</th>
+            ${ALLERGENS.map(a=>`<th class="rot">${a.label}</th>`).join("")}
+          </tr>
+        </thead>
+      `;
+
+      const tbody = `
+        <tbody>
+          ${items.map(it=>{
+            const alls = it.allergens || {};
+            return `
+              <tr>
+                <td class="sticky"><b>${safe(it.name)}</b></td>
+                <td>${safe(it.category)}</td>
+                ${ALLERGENS.map(a=>`<td class="center">${alls[a.key] ? "✓" : ""}</td>`).join("")}
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      `;
+
+      t.innerHTML = thead + tbody;
+    }
+
+    function render(){
+      const slug = getParam("t").trim();
+      const st = loadState();
+      if (!st || !st.takeaways || !slug || !st.takeaways[slug]) {
+        buildTable("Allergen Information", []);
+        document.getElementById("cxSub").textContent =
+          "Link invalid / data not found on this device.";
         return;
       }
 
-      try{
-        const data = await loadPublicData();
-        const tw = (data.takeaways || []).find(x => x.slug === slug);
-        if (!tw) throw new Error("not found");
-        renderTakeaway(tw);
-      }catch(err){
-        $("#content").innerHTML = `
-          <p class="h2">Not published yet</p>
-          <p class="p">
-            This takeaway has not been published. The business owner must upload <span class="kbd">public-data.json</span> to the website.
-          </p>
-          <div class="notice" style="margin-top:10px">
-            If you are the owner: Open the Builder → Export → “Download public-data.json” → upload it to GitHub repo root.
-          </div>
-        `;
-      }
+      const tw = st.takeaways[slug];
+      document.getElementById("cxSub").textContent =
+        "Customer view (read-only).";
+
+      const items = Array.isArray(tw.items) ? tw.items : [];
+      buildTable(tw.name || slug, items);
+
+      const input = document.getElementById("cxSearch");
+      input.addEventListener("input", ()=>{
+        const q = input.value.trim().toLowerCase();
+        const filtered = items.filter(it=>{
+          const a = (it.name||"").toLowerCase();
+          const b = (it.category||"").toLowerCase();
+          return a.includes(q) || b.includes(q);
+        });
+        buildTable(tw.name || slug, filtered);
+      });
+
+      document.getElementById("cxPrint").addEventListener("click", ()=>window.print());
     }
 
-    main();
+    render();
   </script>
 </body>
 </html>
