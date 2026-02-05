@@ -1,43 +1,50 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Allergen Matrix Builder</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="logo">🍽️</div>
+      <div class="logo" aria-hidden="true">🍽️</div>
       <div>
         <div class="title">Allergen Matrix Builder</div>
-        <div class="subtitle">Multi-Takeaway • PDF • QR • CSV • Bulk CSV • QR Sheet</div>
+        <div class="subtitle">Multi-Takeaway • Cells Grid • QR • CSV • Bulk CSV • QR Sheet</div>
       </div>
     </div>
+
     <div class="top-actions">
-      <button id="navItems" class="btn primary">Items</button>
-      <button id="navExport" class="btn">Export</button>
+      <button id="tabItems" class="btn primary">Items</button>
+      <button id="tabExport" class="btn">Export</button>
     </div>
   </header>
 
-  <main class="container" id="app"></main>
+  <main class="container">
+    <section class="card">
+      <div class="row space wrap">
+        <div>
+          <div class="h2">Takeaway Profile</div>
+          <div class="p muted">Har takeaway ka data separate hota hai (items, export, QR, CSV).</div>
+          <div id="takeawayMeta" class="p small muted"></div>
+        </div>
 
-  <script>
-    // ✅ Short link entry point:
-    // If someone opens: /?t=crust-blackburn
-    // redirect to customer page:
-    // /customer.html?t=crust-blackburn
-    (function(){
-      const u = new URL(location.href);
-      const t = u.searchParams.get("t");
-      if (t) {
-        const dest = new URL("customer.html", location.href);
-        dest.searchParams.set("t", t);
-        location.replace(dest.toString());
-      }
-    })();
-  </script>
+        <div class="row wrap gap">
+          <select id="takeawaySelect" class="select"></select>
+          <button id="btnNewTakeaway" class="btn">+ New</button>
+          <button id="btnRenameTakeaway" class="btn">Rename</button>
+          <button id="btnDeleteTakeaway" class="btn danger">Delete</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewItems" class="card"></section>
+    <section id="viewExport" class="card hidden"></section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
 
   <script src="app.js"></script>
 </body>
